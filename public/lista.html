@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Ventas</title>
+  <link rel="stylesheet" href="/assets/lista.css">
+</head>
+
+<body>
+  <h1>Lista de Ventas</h1>
+  <table id="ventasTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Precio</th>
+        <th>Total</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Ventas will be loaded here -->
+    </tbody>
+  </table>
+  <a href="/">Volver</a>
+
+  <script>
+    async function eliminar(id) {
+      if (!confirm('¿Seguro que deseas eliminar esta venta?')) return;
+
+      try {
+        const data = new URLSearchParams();
+        data.append('id', id);
+
+        const response = await fetch('/api/eliminar', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: data
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          loadVentas(); // 🔄 refresca tabla
+        } else {
+          alert('No se pudo eliminar');
+        }
+
+      } catch (err) {
+        console.error('Error al eliminar:', err);
+      }
+    }
+    
+    async function loadVentas() {
+      try {
+        const response = await fetch('/api/listar');
+        const ventas = await response.json();
+        const tbody = document.querySelector('#ventasTable tbody');
+        tbody.innerHTML = '';
+        ventas.forEach(venta => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${venta.id}</td>
+            <td>${venta.cliente}</td>
+            <td>${venta.producto}</td>
+            <td>${venta.cantidad}</td>
+            <td>${venta.precio}</td>
+            <td>${venta.total}</td>
+            <td>
+              <button onclick="eliminar(${venta.id})" class="button">
+                <span class="button__text">Delete</span>
+                <span class="button__icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="512" viewBox="0 0 512 512" height="512" class="svg"><title></title><path style="fill:none;stroke:#323232;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px" d="M112,112l20,320c.95,18.49,14.4,32,32,32H348c17.67,0,30.87-13.51,32-32l20-320"></path><line y2="112" y1="112" x2="432" x1="80" style="stroke:#323232;stroke-linecap:round;stroke-miterlimit:10;stroke-width:32px"></line><path style="fill:none;stroke:#323232;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px" d="M192,112V72h0a23.93,23.93,0,0,1,24-24h80a23.93,23.93,0,0,1,24,24h0v40"></path><line y2="400" y1="176" x2="256" x1="256" style="fill:none;stroke:#323232;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></line><line y2="400" y1="176" x2="192" x1="184" style="fill:none;stroke:#323232;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></line><line y2="400" y1="176" x2="320" x1="328" style="fill:none;stroke:#323232;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></line></svg>
+                </span>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (err) {
+        console.error('Error loading ventas:', err);
+      }
+    }
+
+    loadVentas();
+  </script>
+</body>
+
+</html>

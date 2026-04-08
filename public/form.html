@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva Venta</title>
+  <link rel="stylesheet" href="/assets/form.css">
+</head>
+
+<body>
+  <h1>Nueva Venta</h1>
+  <p id="message">Registra un nuevo producto</p>
+  <form id="ventaForm">
+    <div class="input-field">
+      <input type="text" id="cliente" name="cliente" required>
+      <label for="cliente">Cliente:</label>
+    </div>
+
+    <div class="input-field">
+      <input type="text" id="producto" name="producto" required>
+      <label for="producto">Producto:</label>
+    </div>
+
+    <div class="input-field">
+      <input type="number" id="cantidad" name="cantidad" min="1" step="1" required>
+      <label for="cantidad">Cantidad:</label>
+    </div>
+
+    <div class="input-field">
+      <input type="number" id="precio" name="precio" min="0.1" step="0.1" required>
+      <label for="precio">Precio:</label>
+    </div>
+
+    <button type="button" id="calculate">Calcular</button>
+    <button type="submit" id="submit">Guardar</button>
+  </form>
+
+  <div class="preview">
+    <h2>Total</h2>
+    <div id="total">$0.00</div>
+  </div>
+  <a href="/">Volver</a>
+
+  <script>
+    function getParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        action: params.get('action'),
+        id: params.get('id')
+      };
+    }
+
+    function isNumeric(str) {
+      if (typeof str != "string") return false // we only process strings!  
+      return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+        !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      const { action, id } = getParams();
+
+      const messageEl = document.getElementById('message');
+
+      if (action === 'edit' && id) {
+        try {
+          const response = await fetch(`/api/venta/${id}`);
+          const result = await response.json();
+
+          if (!result.success) {
+            messageEl.textContent = "Ese registro no existe";
+            messageEl.classList.add('error');
+            return;
+          }
+
+          const venta = result.data;
+
+          // 👇 rellenar formulario
+          document.getElementById('cliente').value = venta.cliente;
+          document.getElementById('producto').value = venta.producto;
+          document.getElementById('cantidad').value = venta.cantidad;
+          document.getElementById('precio').value = venta.precio;
+          document.getElementById('submit').textContent = "Actualizar";
+
+          messageEl.textContent = "Editando venta";
+        } catch (err) {
+          messageEl.textContent = "Error al cargar datos";
+          messageEl.classList.add('error');
+        }
+      }
+
+      const cantidadInput = document.getElementById('cantidad');
+      const precioInput = document.getElementById('precio');
+
+      const calculateBtn = document.getElementById('calculate');
+      const totalEl = document.getElementById('total');
+
+      calculateBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        if (!isNumeric(cantidadInput.value) || !isNumeric(precioInput.value)) {
+          totalEl.textContent = "La cantidad o el precio no son validos";
+          return;
+        }
+
+        const cantidad = parseInt(cantidadInput.value, 10);
+        const precio = parseFloat(precioInput.value);
+        const total = cantidad * precio;
+        totalEl.textContent = `$${total.toFixed(2)}`;
+      });
+    });
+
+    document.getElementById('ventaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const { action, id } = getParams();
+
+      const formData = new FormData(e.target);
+      const data = new URLSearchParams(formData);
+
+      let url = '/api/crear';
+      let method = 'POST';
+
+      // 👇 si es edición
+      if (action === 'edit' && id) {
+        url = `/api/venta/${id}`;
+        method = 'PUT'; // o POST si no usas PUT
+      }
+
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: data
+        });
+
+        const result = await response.json();
+
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = result.success
+          ? (action === 'edit' ? 'Venta actualizada' : 'Venta guardada')
+          : 'Error';
+
+        messageEl.classList.add(result.success ? 'success' : 'error');
+
+      } catch (err) {
+        const messageEl = document.getElementById('message');
+        messageEl.textContent = "Error de conexión";
+        messageEl.classList.add('error');
+      }
+    });
+  </script>
+</body>
+
+</html>

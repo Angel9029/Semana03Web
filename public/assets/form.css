@@ -1,0 +1,130 @@
+/* Styles for form page */
+:root {
+  --color-primary: #004b8d;
+  --color-accent: #7fdc71;
+  --color-text: #222222;
+  --color-border: #e5e7eb;
+  --radius: 8px;
+  --font-main: "Segoe UI", sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background: #f5f7fb;
+  margin: 0;
+  padding: 20px;
+}
+
+p {
+  text-align: center;
+
+  &.success {
+    color: #60b553;
+  }
+
+  &.error {
+    color: rgb(233, 106, 106);
+  }
+}
+
+h1 {
+  color: var(--color-primary);
+  text-align: center;
+}
+
+form {
+  max-width: 400px;
+  width: 80dvw;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* input {
+  width: calc(100% - 40px);
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+} */
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin: .5rem 0;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--color-accent);
+}
+
+.preview {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.preview h2 {
+  margin: 0 20px 0 0;
+  color: var(--color-text);
+  font-size: 18px;
+}
+
+a {
+  display: block;
+  text-align: center;
+  margin-top: 20px;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* custom components */
+.input-field {
+  position: relative;
+}
+
+.input-field label {
+  position: absolute;
+  color: #8d8d8d;
+  pointer-events: none;
+  background-color: transparent;
+  left: 15px;
+  transform: translateY(1.5rem);
+  transition: all 0.3s ease;
+}
+
+.input-field input {
+  padding: 10px 15px;
+  margin: 1rem 0;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: solid 1px #8d8d8d;
+  letter-spacing: 1px;
+  width: calc(100% - 40px);
+}
+
+.input-field input:focus,
+.input-field input:valid {
+  outline: none;
+  border: solid 1px #0034de;
+}
+
+.input-field input:focus ~ label,
+.input-field input:valid ~ label {
+  transform: translateY(15%) translateX(-10px) scale(0.8);
+  background-color: #fff;
+  padding: 0px 5px;
+  color: #0034de;
+  font-weight: bold;
+  letter-spacing: 1px;
+  border: none;
+  border-radius: 100px;
+}
